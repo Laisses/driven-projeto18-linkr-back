@@ -1,14 +1,10 @@
 import { connectionDB } from "../database/db.js";
 
 export const getLikes = async (req, res) => {
-  const token = req.token;
+  const id = req.params;
   try {
-    const userId = await connectionDB.query(
-      `SELECT user_id FROM sessions WHERE token = $1`,
-      [token]
-    );
     const likes = await connectionDB.query(
-      `SELECT likes FROM posts WHERE user_id = $1`, [userId]
+      `SELECT likes FROM posts WHERE id = $1`, [id]
     );
     res.status(200).send(likes)
   } catch (error) {
@@ -16,3 +12,5 @@ export const getLikes = async (req, res) => {
     res.sendStatus(401);
   }
 };
+
+
