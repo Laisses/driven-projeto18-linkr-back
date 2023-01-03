@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getLikes } from "../controllers/likes.controller.js";
+import { postLikes } from "../controllers/likes.controller.js";
 import { tokenMiddleware } from "../middlewares/token.validation.middleware.js";
 
 export const linksRouter = Router();
 
-linksRouter.get("/likes/:id", getLikes);
+linksRouter.post("/likes", tokenMiddleware, postLikes)
