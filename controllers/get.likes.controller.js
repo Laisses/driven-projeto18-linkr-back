@@ -12,7 +12,6 @@ export const getLikes = async (req, res) => {
     ).rows;
 
     const usersId = likes.map((like) => like.user_id);
-    console.log(...usersId);
 
     const users = (
       await connectionDB.query(`SELECT * FROM users WHERE id = ANY($1::int[]);`, [usersId])
