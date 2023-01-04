@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { trendingHashtagsControl } from "../controllers/hashtag.controllers.js";
-import { trendingHashtagsMiddle } from "../middlewares/hashtag.middlewares.js";
+import { tokenMiddleware } from "../middlewares/token.validation.middleware.js";
 
 const router = Router();
 
-router.get("/hashtag", trendingHashtagsMiddle, trendingHashtagsControl);
+router.get("/hashtag", tokenMiddleware, trendingHashtagsControl);
 router.get("/hashtag/:hashtag", );
 
 export default router;
