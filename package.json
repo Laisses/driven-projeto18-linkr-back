@@ -30,5 +30,8 @@
     "nodemon": "^2.0.20",
     "pg": "^8.8.0",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }
