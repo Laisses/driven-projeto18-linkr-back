@@ -8,6 +8,7 @@ const app = express();
 import userRoutes from "./routes/user.routes.js";
 import hashtagRouters from "./routes/hashtag.routes.js";
 import { likesRouter } from "./routes/likes.routes.js";
+import { postsRouter } from "./routes/posts.routes.js";
 
 //Configs
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(hashtagRouters);
 app.use(likesRouter);
 app.use(userRoutes);
+app.use(postsRouter);
 
 const port = process.env.PORT;
 
