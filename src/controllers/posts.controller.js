@@ -9,13 +9,21 @@ export const readPosts = async (req, res) => {
 };
 
 const scrapeMetadata = async link => {
-    const metadata = await getMetaData(link);
-
-    return {
-        title: metadata.title || "",
-        hint: metadata.description || "",
-        address: link,
-        image: metadata.image || metadata.icon || ""
+    try {
+        const metadata = await getMetaData(link);
+        return {
+            title: metadata?.title,
+            hint: metadata?.description,
+            address: link,
+            image: metadata?.image || metadata?.icon
+        }
+    } catch (err) {
+        return {
+            title: null,
+            hint: null,
+            address: link,
+            image: null
+        };
     }
 };
 
