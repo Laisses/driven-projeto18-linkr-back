@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import searchBoxRouters from "./routes/searchBox.routes.js"
+import searchBoxRouters from "./routes/users.routes.js"
 
 dotenv.config();
 
