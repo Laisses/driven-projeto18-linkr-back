@@ -1,4 +1,4 @@
-import { getUsersByName } from "../repositories/users.repositories.js"
+import { getUsersByName } from "../repositories/user.repositories.js"
 
 export async function getUsers(req, res) {
     const name = `${req.params.name}%`
