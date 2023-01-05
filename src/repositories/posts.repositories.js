@@ -42,8 +42,10 @@ export const addNewPost = async (user_id, description) => {
     [user_id, 0, description]);
 };
 
-/* export const addNewLink = async post_id => {
+export const addNewLink = async (post_id, title, hint, address, image ) => {
     return connectionDB.query(`
-        INSERT INTO links (post_id, title, )
-    ;`);
-}; */
+        INSERT INTO
+            links (post_id, title, hint, address, image)
+            VALUES ($1, $2, $3, $4, $5);`,
+    [post_id, title, hint, address, image]);
+};
