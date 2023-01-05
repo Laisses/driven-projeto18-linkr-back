@@ -1,11 +1,30 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
-export const readPosts = async (req, res) => {
-    const posts = await r.getAllPosts();
-    console.log(posts.rows);
+const formatPosts = posts => {
+    return posts.map(p => {
+        return {
+            id: p.post_id,
+            description: p.description,
+            user: {
+                name: p.name,
+                photo: p.photo,
+            },
+            link: {
+                title: p.title,
+                hint: p.hint,
+                image: p.image,
+                address: p.address,
+            },
+        };
+    });
+};
 
-    res.sendStatus(200);
+export const readPosts = async (req, res) => {
+    const posts = (await r.getAllPosts()).rows;
+    const formattedPosts = formatPosts(posts);
+
+    res.status(200).send(formattedPosts);
 };
 
 const scrapeMetadata = async link => {

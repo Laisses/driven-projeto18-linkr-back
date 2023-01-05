@@ -5,7 +5,7 @@ export const getAllPosts = async () => {
         SELECT
             u.name,
             u.photo,
-            p.id,
+            p.id as post_id,
             p.likes,
             p.description,
             l.title,
@@ -23,7 +23,7 @@ export const getAllPosts = async () => {
         ON
             p.id = l.post_id
         ORDER BY
-            p.created_at ASC
+            p.created_at DESC
         LIMIT
             20
     ;`);
