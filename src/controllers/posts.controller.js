@@ -6,3 +6,14 @@ export const readPosts = async (req, res) => {
 
     res.sendStatus(200);
 };
+
+export const postLink = async (req, res) => {
+    const token = req.token;
+    const {description, link} = req.body;
+
+    const user_id = (await r.getUser(token)).rows[0].user_id;
+    const post_id = (await r.addNewPost(user_id, description)).rows[0].id;
+
+
+    res.sendStatus(200);
+};
