@@ -7,5 +7,5 @@ import { tokenMiddleware } from "../middlewares/token.validation.middleware.js";
 
 export const postsRouter = Router();
 
-postsRouter.delete("/posts", tokenMiddleware, deletePost)
+postsRouter.delete("/timeline", tokenMiddleware, deletePost)
 postsRouter.get("/timeline", tokenMiddleware, m.asyncError(c.readPosts));
