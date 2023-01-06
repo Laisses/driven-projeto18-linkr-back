@@ -5,14 +5,14 @@ import bcrypt from "bcrypt";
 
 const signInJOI = joi.object({
     email: joi.string().email().required().min(1),
-    password: joi.string().uri().required().min(1),
+    password: joi.string().required().min(1),
 })
 
 const signUpJOI = joi.object({
     email: joi.string().email().required().min(1),
     password: joi.string().required().min(1),
     username: joi.string().required().min(1),
-    pictureUrl: joi.string().required()
+    pictureUrl: joi.string().uri().required()
 })
 
 export async function signIn(req, res) {
@@ -57,21 +57,24 @@ export async function signIn(req, res) {
 export async function signUp(req, res) {
 
     const { email, password, username, pictureUrl } = req.body
-    const hashPassword = bcrypt.hashSync(password, 5);
-    const validation = signUpJOI.validate({ username, email, password }, { abortEarly: false })
+    console.log(req.body)
 
+    const validation = signUpJOI.validate({ username, email, password, pictureUrl}, { abortEarly: false })
+    console.log("entrei na funçao")
     if (validation.error) {
         const erros = validation.error.details.map((d) => d.message)
         res.status(422).send(erros)
         return
     }
 
+    const hashPassword = bcrypt.hashSync(password, 5);
+
     if (!username || !email || !password || !pictureUrl) {
         return res.sendStatus(400)
     }
 
     try {
-        await connectionDB.query(`INSERT INTO users ("email", "password", "username") VALUES ($1, $2, $3);`, [email, hashPassword, username])
+        await connectionDB.query(`INSERT INTO users ("email", "password", "name", "photo") VALUES ($1, $2, $3, $4);`, [email, hashPassword, username, pictureUrl])
         res.sendStatus(201);
 
     } catch (err) {
@@ -83,6 +86,53 @@ export async function signUp(req, res) {
 }
 
 export async function logout(req, res){
+    // const { authorization } = req.headers;
+    // const token = authorization?.replace("Bearer ", "");
 
-}
+    // if (!token) {
+    //     return res.sendStatus(401);
+    // };
+
+    // try {
+    //     const openedSession = await atividadeCollection.findOne({ token });
+
+    //     if (openedSession) {
+    //         await atividadeCollection.deleteOne({ token });
+    //         res.sendStatus(200);            
+    //     };
+
+    //     const openedSessionAdmin = await atividadeAdminCollection.findOne({ token });
+
+    //     if (openedSessionAdmin) {
+    //         await atividadeAdminCollection.deleteOne({ token });
+    //         res.sendStatus(200);  
+    //     };       
+
+    // } catch (err) {
+    //     res.sendStatus(500);
+    // };  
+        const { id } = req.params;
+        const token = req.headers.authorization?.replace("Bearer ", "");
+    
+        try {
+            const atividade = await connectionDB.query(`SELECT * FROM atividade WHERE token=$1;`, [token]);
+    
+            if (!atividade.rows[0]) {
+                return res.sendStatus(401);
+            }
+    
+            const urlAtiva = await connectionDB.query(`SELECT * FROM urls WHERE id=$1;`, [id])
+            
+            if(!urlAtiva.rows[0]){
+                return res.sendStatus(404)
+            }
+    
+            await connectionDB.query(`DELETE FROM urls WHERE id=$1;`, [id]);
+            res.sendStatus(204);
+    
+        } catch (error) {
+            console.log(error);
+            res.sendStatus(500);
+        }
+    }
 
