@@ -28,22 +28,28 @@ export async function getTrendingList () {
 
 export async function getHashtagFeed (name) {
     return connectionDB.query(`
-        SELECT 
-            posts.*
+        SELECT
+            posts.*, u.photo, u.name
         FROM 
-            posts 
+            posts
         JOIN 
-            posts_hashtags 
+            posts_hashtags
         AS 
             p 
         ON 
-            p.post_id = posts.id 
+            p.post_id = posts.id
         JOIN 
-            hashtags 
+            hashtags
         AS 
-            h 
+            h
         ON 
-            h.id = p.hashtag_id 
+            h.id = p.hashtag_id
+        JOIN
+            users
+        AS
+            u
+        ON
+            u.id = posts.user_id
         WHERE h.name = $1;
         `, [name]);
 }
