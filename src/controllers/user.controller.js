@@ -1,5 +1,6 @@
 import joi from "joi";
 import {connectionDB} from "../database/db.js";
+import { getUsersByName } from "../repositories/user.repositories.js"
 import { v4 as uuidV4 } from "uuid";
 import bcrypt from "bcrypt";
 
@@ -86,53 +87,16 @@ export async function signUp(req, res) {
 }
 
 export async function logout(req, res){
-    // const { authorization } = req.headers;
-    // const token = authorization?.replace("Bearer ", "");
+}
 
-    // if (!token) {
-    //     return res.sendStatus(401);
-    // };
+export async function getUsers(req, res) {
+    const name = `${req.params.name}%`
 
-    // try {
-    //     const openedSession = await atividadeCollection.findOne({ token });
-
-    //     if (openedSession) {
-    //         await atividadeCollection.deleteOne({ token });
-    //         res.sendStatus(200);            
-    //     };
-
-    //     const openedSessionAdmin = await atividadeAdminCollection.findOne({ token });
-
-    //     if (openedSessionAdmin) {
-    //         await atividadeAdminCollection.deleteOne({ token });
-    //         res.sendStatus(200);  
-    //     };       
-
-    // } catch (err) {
-    //     res.sendStatus(500);
-    // };  
-        const { id } = req.params;
-        const token = req.headers.authorization?.replace("Bearer ", "");
-    
-        try {
-            const atividade = await connectionDB.query(`SELECT * FROM atividade WHERE token=$1;`, [token]);
-    
-            if (!atividade.rows[0]) {
-                return res.sendStatus(401);
-            }
-    
-            const urlAtiva = await connectionDB.query(`SELECT * FROM urls WHERE id=$1;`, [id])
-            
-            if(!urlAtiva.rows[0]){
-                return res.sendStatus(404)
-            }
-    
-            await connectionDB.query(`DELETE FROM urls WHERE id=$1;`, [id]);
-            res.sendStatus(204);
-    
-        } catch (error) {
-            console.log(error);
-            res.sendStatus(500);
-        }
+    try {
+        const users = await getUsersByName(name)
+        res.status(200).send(users.rows)
+    } catch (err) {
+        res.status(500).send(err.message)
     }
+}
 
