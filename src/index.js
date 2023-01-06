@@ -15,8 +15,9 @@ app.use(express.json());
 app.use(cors());
 app.use(hashtagRouters);
 app.use(likesRouter);
-app.use(userRoutes);
+app.use(userRouter);
 app.use(postsRouter);
+
 
 const port = process.env.PORT;
 
