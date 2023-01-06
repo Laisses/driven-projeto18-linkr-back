@@ -1,9 +1,9 @@
 import { connectionDB } from "../database/db.js";
 
 export const getLikes = async (req, res) => {
-  const { id } = req.body;
-  const postId = id;
-
+  const { post_id } = req.query;
+  const postId = post_id;
+  console.log(postId)
   try {
     const likes = (
       await connectionDB.query(`SELECT * FROM posts_likes WHERE post_id = $1`, [

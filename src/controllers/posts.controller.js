@@ -7,6 +7,7 @@ const formatPosts = posts => {
             id: p.post_id,
             description: p.description,
             user: {
+                id: p.user_id,
                 name: p.name,
                 photo: p.photo,
             },

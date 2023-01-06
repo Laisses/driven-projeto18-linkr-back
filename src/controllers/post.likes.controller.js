@@ -5,6 +5,10 @@ export const postLikes = async (req, res) => {
   const { id } = req.body;
   const postId = id;
 
+  if(!postId) {
+    return sendStatus(404);
+  }
+
   try {
     const userId = (
       await connectionDB.query(
