@@ -18,6 +18,7 @@ app.use(likesRouter);
 app.use(userRoutes);
 app.use(postsRouter);
 
+
 const port = process.env.PORT;
 
 app.listen(port, () => console.log(`Está rodando na porta ${port}!`));
