@@ -33,19 +33,19 @@ export async function signIn(req, res) {
     }
 
     try {
-        const session = await connectionDB.query(`SELECT * FROM users WHERE email=$1;`, [email])
-        if (!session.rows[0]) {
+        const user = (await connectionDB.query(`SELECT * FROM users WHERE email=$1;`, [email])).rows[0];
+        if (!user) {
             return res.sendStatus(401);
         }
 
-        const encrypted = bcrypt.compareSync(password, session.rows[0].password);
+        const encrypted = bcrypt.compareSync(password, user.password);
         if (!encrypted) {
             return res.sendStatus(401);
         }
 
-        const userId = session.rows[0].id.toString();
+        const userId = user.id;
 
-        await connectionDB.query(`INSERT INTO sessions ("token", "userId") VALUES ($1, $2);`, [token, userId])
+        await connectionDB.query(`INSERT INTO sessions ("token", "user_id") VALUES ($1, $2);`, [token, userId])
 
         res.send({ token });
         
