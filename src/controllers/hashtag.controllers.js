@@ -1,4 +1,4 @@
-import { getHashtagFeed, getTrendingList } from "../repositories/hashtag.repositories.js"
+import { postHashtag, addHashtagVerification, getHashtagFeed, getTrendingList } from "../repositories/hashtag.repositories.js"
 
 export async function trendingHashtagsControl (req, res) {
     try {
@@ -28,6 +28,25 @@ export async function feedHashtagControl (req, res) {
         return res.status(200).send(feed.rows);
     } catch (error) {
         console.log(error.message)
+        return res.sendStatus(500)
+    }
+}
+
+export async function addHashtagControl (req, res) {
+    const { name } = req.body
+
+    try {
+        const hashtagExist = await addHashtagVerification(name)
+
+        if (hashtagExist.rowCount === 0) {
+            await postHashtag(name)
+            return res.sendStatus(201)
+        } else {
+            return res.sendStatus(200)
+        }
+
+    } catch (error) {
+        console.log(error)
         return res.sendStatus(500)
     }
 }
