@@ -14,9 +14,8 @@ export const getLikes = async (req, res) => {
     const usersId = likes.map((like) => like.user_id);
 
     const users = (
-      await connectionDB.query(`SELECT * FROM users WHERE id = ANY($1::int[]);`, [usersId])
+      await connectionDB.query(`SELECT id, name, photo FROM users WHERE id = ANY($1::int[]);`, [usersId])
     ).rows;
-    
 
     res.status(200).send(users);
   } catch (error) {
