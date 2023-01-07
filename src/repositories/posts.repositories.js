@@ -3,6 +3,7 @@ import { connectionDB } from "../database/db.js";
 export const getAllPosts = async () => {
     return connectionDB.query(`
         SELECT
+            u.id as user_id
             u.name,
             u.photo,
             p.id as post_id,
