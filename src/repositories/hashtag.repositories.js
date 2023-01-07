@@ -26,30 +26,43 @@ export async function getTrendingList () {
             10;`);
 }
 
-export async function getHashtagFeed (name) {
+export const getHashtagFeed = async (hashtag) => {
     return connectionDB.query(`
         SELECT
-            posts.*, u.photo, u.name
-        FROM 
-            posts
-        JOIN 
-            posts_hashtags
-        AS 
-            p 
-        ON 
-            p.post_id = posts.id
-        JOIN 
-            hashtags
-        AS 
-            h
-        ON 
-            h.id = p.hashtag_id
+            u.name,
+            u.photo,
+            p.user_id,
+            p.id as post_id,
+            p.likes,
+            p.description,
+            l.title,
+            l.hint,
+            l.image,
+            l.address
+        FROM
+            users as u
         JOIN
-            users
-        AS
-            u
+            posts as p
         ON
-            u.id = posts.user_id
-        WHERE h.name = $1;
-        `, [name]);
-}
+            u.id = p.user_id
+        JOIN
+            links as l
+        ON
+            p.id = l.post_id
+        JOIN
+            posts_hashtags as ph
+        ON
+            p.id = ph.post_id
+        JOIN
+            hashtags as h
+        ON
+            ph.hashtag_id = h.id
+        WHERE 
+            h.name = $1
+        ORDER BY
+            p.created_at DESC
+        LIMIT
+            20
+    ;`),
+    [hashtag];
+};
