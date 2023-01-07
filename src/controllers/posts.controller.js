@@ -21,7 +21,7 @@ const formatPosts = posts => {
     });
 };
 
-export const readPosts = async (req, res) => {
+export const readPosts = async (_req, res) => {
     const posts = (await r.getAllPosts()).rows;
     const formattedPosts = formatPosts(posts);
 
@@ -49,7 +49,7 @@ const scrapeMetadata = async link => {
 
 export const postLink = async (req, res) => {
     const token = req.token;
-    const {description, link} = req.body;
+    const { description, link } = req.body;
 
     const user_id = (await r.getUser(token)).rows[0].user_id;
     const post_id = (await r.addNewPost(user_id, description)).rows[0].id;
@@ -58,4 +58,12 @@ export const postLink = async (req, res) => {
     await r.addNewLink(post_id, data.title, data.hint, data.address, data.image);
 
     res.sendStatus(201);
+};
+
+export const editDescription = async (req, res) => {
+    const { post_id, description } = req.body;
+
+    await r.editDescription(post_id, description);
+
+    res.sendStatus(200);
 };

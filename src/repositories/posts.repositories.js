@@ -3,6 +3,7 @@ import { connectionDB } from "../database/db.js";
 export const getAllPosts = async () => {
     return connectionDB.query(`
         SELECT
+            u.id as user_id
             u.name,
             u.photo,
             p.id as post_id,
@@ -48,4 +49,12 @@ export const addNewLink = async (post_id, title, hint, address, image ) => {
             links (post_id, title, hint, address, image)
             VALUES ($1, $2, $3, $4, $5);`,
     [post_id, title, hint, address, image]);
+};
+
+export const getPost = async id => {
+    return await connectionDB.query(`SELECT * FROM posts WHERE id=$1;`, [id]);
+};
+
+export const editDescription = async (post_id, description) => {
+    return await connectionDB.query(`UPDATE posts SET description=$1 WHERE id=$2;`, [description, post_id]);
 };
