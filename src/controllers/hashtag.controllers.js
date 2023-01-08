@@ -1,4 +1,4 @@
-import { postHashtag, addHashtagVerification, getHashtagFeed, getTrendingList } from "../repositories/hashtag.repositories.js"
+import { postHashtag, addHashtagVerification, getHashtagFeed, getTrendingList, addOnPostsHashtags } from "../repositories/hashtag.repositories.js"
 
 export async function trendingHashtagsControl (req, res) {
     try {
@@ -33,15 +33,20 @@ export async function feedHashtagControl (req, res) {
 }
 
 export async function addHashtagControl (req, res) {
-    const { name } = req.body
+    const { name, post_id } = req.body
 
     try {
         const hashtagExist = await addHashtagVerification(name)
 
         if (hashtagExist.rowCount === 0) {
-            await postHashtag(name)
+            //caso do hashtag não existir, adiciona apenas na tabela hashtags e posts_hashtags
+            const hashtag_id = (await postHashtag(name)).rows[0].id
+            await addOnPostsHashtags(post_id, hashtag_id)
+
             return res.sendStatus(201)
         } else {
+            //caso do hashtag já existir, adiciona apenas na tabela posts_hashtags
+            await addOnPostsHashtags(post_id, hashtagExist.rows[0].id)
             return res.sendStatus(200)
         }
 

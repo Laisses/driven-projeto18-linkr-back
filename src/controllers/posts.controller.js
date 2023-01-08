@@ -57,7 +57,7 @@ export const postLink = async (req, res) => {
 
     await r.addNewLink(post_id, data.title, data.hint, data.address, data.image);
 
-    res.sendStatus(201);
+    res.status(201).send({post_id});
 };
 
 export const editDescription = async (req, res) => {
