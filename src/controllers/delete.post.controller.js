@@ -1,7 +1,7 @@
 import { connectionDB } from "../database/db.js";
 
 export const deletePost = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const postId = id;
   const token = req.token;
 
