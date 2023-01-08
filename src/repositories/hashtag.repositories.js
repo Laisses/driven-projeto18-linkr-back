@@ -63,8 +63,8 @@ export const getHashtagFeed = async (hashtag) => {
             p.created_at DESC
         LIMIT
             20
-    ;`),
-    [hashtag];
+    ;`,
+    [hashtag]);
 };
 
 export async function postHashtag (name) {
