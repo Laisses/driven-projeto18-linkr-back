@@ -47,7 +47,7 @@ export async function signIn(req, res) {
 
         await connectionDB.query(`INSERT INTO sessions ("token", "user_id") VALUES ($1, $2);`, [token, userId])
 
-        res.send({ token });
+        res.send({ token, user:{id:user.id, name:user.name, photo:user.photo} });
         
     } catch (err) {
         console.log(err.message)
@@ -87,6 +87,22 @@ export async function signUp(req, res) {
 }
 
 export async function logout(req, res){
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+
+    try {
+        const openedSession = await connectionDB.query(`SELECT * FROM sessions WHERE token=$1;`, [token]);
+
+        if (!openedSession.rows[0]) {
+            return res.sendStatus(401)
+        };      
+
+        await connectionDB.query(`DELETE FROM sessions WHERE token=$1;`, [token])
+        res.sendStatus(204)
+
+    } catch (err) {
+        res.sendStatus(500);
+    };
 }
 
 export async function getUsers(req, res) {
