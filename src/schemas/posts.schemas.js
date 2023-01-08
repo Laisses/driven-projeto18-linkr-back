@@ -8,3 +8,8 @@ export const post = joi.object({
     description: joi.string().allow(""),
 });
 
+export const newDescription = joi.object({
+    post_id: joi.number().required(),
+    description: joi.string().allow(""),
+});
+
