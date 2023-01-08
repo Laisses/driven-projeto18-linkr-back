@@ -1,12 +1,13 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
-const formatPosts = posts => {
+export const formatPosts = posts => {
     return posts.map(p => {
         return {
             id: p.post_id,
             description: p.description,
             user: {
+                id: p.user_id,
                 name: p.name,
                 photo: p.photo,
             },

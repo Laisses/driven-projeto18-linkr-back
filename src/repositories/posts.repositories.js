@@ -5,6 +5,7 @@ export const getAllPosts = async () => {
         SELECT
             u.name,
             u.photo,
+            p.user_id,
             p.id as post_id,
             p.likes,
             p.description,
