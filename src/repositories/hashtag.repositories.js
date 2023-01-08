@@ -68,9 +68,13 @@ export const getHashtagFeed = async (hashtag) => {
 };
 
 export async function postHashtag (name) {
-    return connectionDB.query(`INSERT INTO hashtags (name) VALUES ($1);`, [name]);
+    return connectionDB.query(`INSERT INTO hashtags (name) VALUES ($1) RETURNING id;`, [name]);
 }
 
 export async function addHashtagVerification (name) {
     return connectionDB.query(`SELECT * FROM hashtags WHERE name = $1;`, [name]);
+}
+
+export async function addOnPostsHashtags (post_id, hashtag_id) {
+    return connectionDB.query(`INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ($1, $2);`, [post_id, hashtag_id]);
 }
