@@ -15,6 +15,26 @@ export async function trendingHashtagsControl (req, res) {
     }
 }
 
+const formatPosts = posts => {
+    return posts.map(p => {
+        return {
+            id: p.post_id,
+            description: p.description,
+            user: {
+                id: p.user_id,
+                name: p.name,
+                photo: p.photo,
+            },
+            link: {
+                title: p.title,
+                hint: p.hint,
+                image: p.image,
+                address: p.address,
+            },
+        };
+    });
+};
+
 export async function feedHashtagControl (req, res) {
     const { hashtag } = req.params
 
@@ -23,9 +43,11 @@ export async function feedHashtagControl (req, res) {
 
         if (feed.rowCount === 0) {
             return res.sendStatus(404)
-          }
-      
-        return res.status(200).send(feed.rows);
+        }
+
+        const formattedPosts = formatPosts(feed.rows);
+
+        return res.status(200).send(formattedPosts);
     } catch (error) {
         console.log(error.message)
         return res.sendStatus(500)
