@@ -1,4 +1,4 @@
-import { getHashtagFeed, getTrendingList } from "../repositories/hashtag.repositories.js"
+import { postHashtag, addHashtagVerification, getHashtagFeed, getTrendingList, addOnPostsHashtags, deletePostsHashtags } from "../repositories/hashtag.repositories.js"
 
 export async function trendingHashtagsControl (req, res) {
     try {
@@ -28,6 +28,43 @@ export async function feedHashtagControl (req, res) {
         return res.status(200).send(feed.rows);
     } catch (error) {
         console.log(error.message)
+        return res.sendStatus(500)
+    }
+}
+
+export async function addHashtagControl (req, res) {
+    const { name, post_id } = req.body
+
+    try {
+        const hashtagExist = await addHashtagVerification(name)
+
+        if (hashtagExist.rowCount === 0) {
+            //caso do hashtag não existir, adiciona apenas na tabela hashtags e posts_hashtags
+            const hashtag_id = (await postHashtag(name)).rows[0].id
+            await addOnPostsHashtags(post_id, hashtag_id)
+
+            return res.sendStatus(201)
+        } else {
+            //caso do hashtag já existir, adiciona apenas na tabela posts_hashtags
+            await addOnPostsHashtags(post_id, hashtagExist.rows[0].id)
+            return res.sendStatus(200)
+        }
+
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(500)
+    }
+}
+
+export async function deleteHashtagControl (req, res) {
+    const { postId } = req.params
+
+    try {
+        //Deleta todas as ocorrências de hashtags nesse post_id
+        await deletePostsHashtags(postId)
+        return res.sendStatus(200)
+    } catch (error) {
+        console.log(error)
         return res.sendStatus(500)
     }
 }

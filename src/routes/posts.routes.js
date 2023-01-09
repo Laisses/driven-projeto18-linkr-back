@@ -10,4 +10,4 @@ export const postsRouter = Router();
 postsRouter.get("/timeline", tokenMiddleware, m.asyncError(c.readPosts));
 postsRouter.post("/timeline", tokenMiddleware, m.validate(s.post), m.asyncError(c.postLink));
 postsRouter.put("/timeline", tokenMiddleware, m.validate(s.newDescription), m.validatePostEdit, m.asyncError(c.editDescription));
-postsRouter.delete("/timeline", tokenMiddleware, deletePost);
+postsRouter.delete("/timeline/:id", tokenMiddleware, deletePost);

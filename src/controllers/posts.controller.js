@@ -1,7 +1,7 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
-const formatPosts = posts => {
+export const formatPosts = posts => {
     return posts.map(p => {
         return {
             id: p.post_id,
@@ -16,6 +16,7 @@ const formatPosts = posts => {
                 hint: p.hint,
                 image: p.image,
                 address: p.address,
+                likes: p.likes
             },
         };
     });
@@ -57,7 +58,7 @@ export const postLink = async (req, res) => {
 
     await r.addNewLink(post_id, data.title, data.hint, data.address, data.image);
 
-    res.sendStatus(201);
+    res.status(201).send({post_id});
 };
 
 export const editDescription = async (req, res) => {

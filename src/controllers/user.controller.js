@@ -74,6 +74,23 @@ export async function logout(req, res){
     };
 }
 
+import { getPostsByUserId } from "../repositories/user.repositories.js";
+import { formatPosts } from "./posts.controller.js";
+
+export async function readUserPosts(req, res) {
+    const id = req.params.id
+    try {   
+        const posts = (await getPostsByUserId(id)).rows
+        const formattedPosts = formatPosts(posts)
+
+        res.send(formattedPosts)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+    
+
+}
+
 export async function getUsers(req, res) {
     const name = `${req.params.name}%`
 

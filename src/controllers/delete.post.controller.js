@@ -1,7 +1,7 @@
 import { connectionDB } from "../database/db.js";
 
 export const deletePost = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const postId = id;
   const token = req.token;
 
@@ -24,8 +24,17 @@ export const deletePost = async (req, res) => {
     await connectionDB.query(`DELETE FROM posts_hashtags WHERE post_id = $1`, [
       postId,
     ]);
+
+    await connectionDB.query(`DELETE FROM posts_likes WHERE post_id = $1`, [
+      postId,
+    ]);
+
+    await connectionDB.query(`DELETE FROM links WHERE post_id = $1`, [
+      postId,
+    ]);
+
     await connectionDB.query(`DELETE FROM posts WHERE id = $1`, [postId]);
-    res.sendStatus(204);
+    res.sendStatus(202);
   } catch (error) {
     console.log(error.message);
     res.sendStatus(500);
