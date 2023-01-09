@@ -16,6 +16,7 @@ export const formatPosts = posts => {
                 hint: p.hint,
                 image: p.image,
                 address: p.address,
+                likes: p.likes
             },
         };
     });
