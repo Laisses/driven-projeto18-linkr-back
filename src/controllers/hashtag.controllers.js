@@ -1,4 +1,4 @@
-import { postHashtag, addHashtagVerification, getHashtagFeed, getTrendingList, addOnPostsHashtags } from "../repositories/hashtag.repositories.js"
+import { postHashtag, addHashtagVerification, getHashtagFeed, getTrendingList, addOnPostsHashtags, deletePostsHashtags } from "../repositories/hashtag.repositories.js"
 
 export async function trendingHashtagsControl (req, res) {
     try {
@@ -50,6 +50,19 @@ export async function addHashtagControl (req, res) {
             return res.sendStatus(200)
         }
 
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(500)
+    }
+}
+
+export async function deleteHashtagControl (req, res) {
+    const { postId } = req.params
+
+    try {
+        //Deleta todas as ocorrências de hashtags nesse post_id
+        await deletePostsHashtags(postId)
+        return res.sendStatus(200)
     } catch (error) {
         console.log(error)
         return res.sendStatus(500)
