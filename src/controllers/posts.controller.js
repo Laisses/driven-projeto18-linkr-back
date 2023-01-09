@@ -6,6 +6,7 @@ export const formatPosts = posts => {
         return {
             id: p.post_id,
             description: p.description,
+            likes: p.likes,
             user: {
                 id: p.user_id,
                 name: p.name,
@@ -16,7 +17,6 @@ export const formatPosts = posts => {
                 hint: p.hint,
                 image: p.image,
                 address: p.address,
-                likes: p.likes
             },
         };
     });
