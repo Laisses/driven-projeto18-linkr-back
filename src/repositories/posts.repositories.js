@@ -6,6 +6,7 @@ export const getAllPosts = async () => {
             u.id as user_id,
             u.name,
             u.photo,
+            p.user_id,
             p.id as post_id,
             p.likes,
             p.description,

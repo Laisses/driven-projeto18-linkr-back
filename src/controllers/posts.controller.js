@@ -1,7 +1,7 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
-const formatPosts = posts => {
+export const formatPosts = posts => {
     return posts.map(p => {
         return {
             id: p.post_id,
