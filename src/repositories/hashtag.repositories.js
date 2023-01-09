@@ -78,3 +78,7 @@ export async function addHashtagVerification (name) {
 export async function addOnPostsHashtags (post_id, hashtag_id) {
     return connectionDB.query(`INSERT INTO posts_hashtags (post_id, hashtag_id) VALUES ($1, $2);`, [post_id, hashtag_id]);
 }
+
+export async function deletePostsHashtags (postId) {
+    return connectionDB.query(`DELETE FROM posts_hashtags WHERE post_id = $1;`, [postId])
+}
