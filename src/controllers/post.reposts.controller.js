@@ -5,7 +5,7 @@ export const postReposts = async (req, res) => {
   const { id } = req.body;
   const postId = id;
 
-  if(!postId) {
+  if (!postId) {
     return sendStatus(404);
   }
 
@@ -24,21 +24,14 @@ export const postReposts = async (req, res) => {
       )
     ).rows[0];
 
-    {
-      !repostId
-        ? await connectionDB.query(
-            `INSERT INTO reposts (post_id, user_id) VALUES ($1, $2) `,
-            [postId, userId]
-          )
-        : await connectionDB.query(
-            `DELETE FROM reposts WHERE id = $1`,
-            [repostId.id]
-          );
-    }
+    await connectionDB.query(
+      `INSERT INTO reposts (post_id, user_id) VALUES ($1, $2) `,
+      [postId, userId]
+    );
+    
     res.sendStatus(201);
   } catch (error) {
     console.log(error.message);
     res.sendStatus(500);
   }
 };
-
