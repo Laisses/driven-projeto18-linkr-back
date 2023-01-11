@@ -13,7 +13,7 @@ export const getAllPosts = async () => {
     l.hint,
     l.image,
     l.address,
-    json_agg(pl.user_id) AS "posts_likes"
+    json_agg(json_strip_nulls(json_build_object('user_id', pl.user_id, 'user_name', user_post_like.name, 'user_photo', user_post_like.photo))) AS "posts_likes"
 FROM
     users as u
 JOIN
@@ -26,6 +26,8 @@ JOIN
     links as l
 ON
     p.id = l.post_id
+LEFT JOIN
+    users AS user_post_like ON user_post_like.id = pl.user_id
 GROUP BY 
     p.id, 
     p.user_id, 
@@ -38,7 +40,7 @@ GROUP BY
     l.address
 ORDER BY
     p.created_at DESC;
-    ;`);
+`);
 };
 
 export const getUser = async token => {
