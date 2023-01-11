@@ -2,30 +2,58 @@ import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
 export const formatPosts = posts => {
-    return posts.map(p => {
-        return {
-            id: p.post_id,
-            description: p.description,
-            likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
-            reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
-            user: {
-                id: p.user_id,
-                name: p.name,
-                photo: p.photo,
-            },
-            link: {
-                title: p.title,
-                hint: p.hint,
-                image: p.image,
-                address: p.address,
-            },
-        };
+    const allPosts = [];
+    posts.forEach(p => {
+            allPosts.push({
+                id: p.post_id,
+                description: p.description,
+                likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
+                reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
+                user: {
+                    id: p.user_id,
+                    name: p.name,
+                    photo: p.photo,
+                },
+                link: {
+                    title: p.title,
+                    hint: p.hint,
+                    image: p.image,
+                    address: p.address,
+                },
+                isRepost: false
+            });
+            Object.keys(p.reposts[0]).length ? 
+            p.reposts.forEach(repost => {
+                allPosts.push({
+                    id: p.post_id,
+                    description: p.description,
+                    likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
+                    reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
+                    user: {
+                        id: p.user_id,
+                        name: p.name,
+                        photo: p.photo,
+                    },
+                    link: {
+                        title: p.title,
+                        hint: p.hint,
+                        image: p.image,
+                        address: p.address,
+                    },
+                    isRepost: true,
+                    repostedBy: repost.user_name
+                })
+            })
+            :
+            null
     });
+    return allPosts;
 };
 
 export const readPosts = async (_req, res) => {
     const posts = (await r.getAllPosts()).rows;
     const formattedPosts = formatPosts(posts);
+    console.log(formattedPosts)
 
     res.status(200).send(formattedPosts);
 };
