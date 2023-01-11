@@ -17,13 +17,6 @@ export const postLikes = async (req, res) => {
       )
     ).rows[0].user_id;
 
-    const likesValidation = (
-      await connectionDB.query(`SELECT likes FROM posts WHERE id = $1`, [
-        postId,
-      ])
-    ).rows[0];
-    const likes = !!likesValidation ? likesValidation.likes : 0
-
     const likeId = (
       await connectionDB.query(
         `SELECT * FROM posts_likes WHERE user_id = $1 AND post_id = $2`,
@@ -42,11 +35,6 @@ export const postLikes = async (req, res) => {
             [likeId.id]
           );
     }
-    const newLikes = !likeId ? likes + 1 : likes -1;
-    await connectionDB.query(`UPDATE posts SET likes = $1 WHERE id = $2`, [
-      newLikes,
-      postId,
-    ]);
     res.sendStatus(201);
   } catch (error) {
     console.log(error.message);
