@@ -5,5 +5,4 @@ import { tokenMiddleware } from "../middlewares/token.validation.middleware.js";
 
 export const likesRouter = Router();
 
-likesRouter.post("/likes", tokenMiddleware, postLikes)
-likesRouter.get("/likes", tokenMiddleware, getLikes)
+likesRouter.post("/likes", tokenMiddleware, postLikes);
