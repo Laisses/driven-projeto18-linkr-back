@@ -13,13 +13,16 @@ export const getAllPosts = async () => {
     l.hint,
     l.image,
     l.address,
-    json_agg(json_strip_nulls(json_build_object('user_id', pl.user_id, 'user_name', user_post_like.name, 'user_photo', user_post_like.photo))) AS "posts_likes"
+    json_agg(json_strip_nulls(json_build_object('user_id', pl.user_id, 'user_name', user_post_like.name, 'user_photo', user_post_like.photo))) AS "posts_likes",
+    json_agg(json_strip_nulls(json_build_object('user_id', rp.user_id))) AS "reposts"
 FROM
     users as u
 JOIN
     posts as p
 LEFT JOIN 
     posts_likes as pl ON p.id = pl.post_id
+    LEFT JOIN 
+    reposts as rp ON p.id = rp.post_id
 ON
     u.id = p.user_id
 JOIN

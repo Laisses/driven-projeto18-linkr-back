@@ -7,6 +7,7 @@ export const formatPosts = posts => {
             id: p.post_id,
             description: p.description,
             likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
+            reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
             user: {
                 id: p.user_id,
                 name: p.name,
