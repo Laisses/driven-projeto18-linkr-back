@@ -59,3 +59,35 @@ export const getPostsByUserId = async (user_id) => {
     ;`,
     [user_id]);
 };
+
+export function followUserById(followerId, followedId) {
+    return connectionDB.query(`
+        INSERT INTO
+            follows (follower, followed)
+        VALUES
+            ($1, $2)
+        ;        
+    `, [followerId,followedId])
+}
+
+export function unfollowUserById(followerId, followedId) {
+    return connectionDB.query(`
+        DELETE FROM 
+            follows 
+        WHERE
+            follower = $1
+        AND 
+            followed = $2
+    `, [followerId, followedId])
+}
+
+export function getFollowingUsersByUserId(id) {
+    return connectionDB.query(`
+        SELECT 
+            followed
+        FROM
+            follows
+        WHERE
+            follower = $1;
+    `,[id])
+}
