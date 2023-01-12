@@ -1,55 +1,39 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
+const json_agg_empty = arr =>
+    Object.keys(arr[0]).length === 0 ? [] : arr;
+
+const formatPost = (p, isRepost) => ({
+    id: p.post_id,
+    description: p.description,
+    created_at: p.created_at,
+    likes: json_agg_empty(p.posts_likes),
+    reposts: json_agg_empty(p.reposts),
+    user: {
+        id: p.user_id,
+        name: p.name,
+        photo: p.photo,
+    },
+    link: {
+        title: p.title,
+        hint: p.hint,
+        image: p.image,
+        address: p.address,
+    },
+    isRepost,
+});
+
 export const formatPosts = posts => {
-    const allPosts = [];
-    posts.forEach(p => {
-            allPosts.push({
-                id: p.post_id,
-                description: p.description,
-                created_at: p.created_at,
-                likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
-                reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
-                user: {
-                    id: p.user_id,
-                    name: p.name,
-                    photo: p.photo,
-                },
-                link: {
-                    title: p.title,
-                    hint: p.hint,
-                    image: p.image,
-                    address: p.address,
-                },
-                isRepost: false
-            });
-            Object.keys(p.reposts[0]).length ? 
-            p.reposts.forEach(repost => {
-                allPosts.push({
-                    id: p.post_id,
-                    description: p.description,
-                    likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
-                    reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
-                    created_at: p.created_at,
-                    user: {
-                        id: p.user_id,
-                        name: p.name,
-                        photo: p.photo,
-                    },
-                    link: {
-                        title: p.title,
-                        hint: p.hint,
-                        image: p.image,
-                        address: p.address,
-                    },
-                    isRepost: true,
-                    repostedBy: repost.user_name
-                })
-            })
-            :
-            null
+    const postsNestedArray = posts.map(p => {
+        const post = formatPost(p, false);
+        const reposts = json_agg_empty(p.reposts).map(repost => ({
+            ...formatPost(repost, true),
+            repostedBy: repost.user_name,
+        }));
+        return [post].concat(reposts);
     });
-    return allPosts;
+    return [].concat(...postsNestedArray);
 };
 
 export const readPosts = async (req, res) => {
