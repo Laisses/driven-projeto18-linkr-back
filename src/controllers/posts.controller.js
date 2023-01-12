@@ -1,31 +1,47 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
+const json_agg_empty = arr =>
+    Object.keys(arr[0]).length === 0 ? [] : arr;
+
+const formatPost = (p, isRepost) => ({
+    id: p.post_id,
+    description: p.description,
+    created_at: p.created_at,
+    likes: json_agg_empty(p.posts_likes),
+    reposts: json_agg_empty(p.reposts),
+    comments: json_agg_empty(p.comments),
+    user: {
+        id: p.user_id,
+        name: p.name,
+        photo: p.photo,
+    },
+    link: {
+        title: p.title,
+        hint: p.hint,
+        image: p.image,
+        address: p.address,
+    },
+    isRepost,
+});
+
 export const formatPosts = posts => {
-    return posts.map(p => {
-        return {
-            id: p.post_id,
-            description: p.description,
-            likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
-            comments: Object.keys(p.comments[0]).length ? p.comments : [],
-            user: {
-                id: p.user_id,
-                name: p.name,
-                photo: p.photo,
-            },
-            link: {
-                title: p.title,
-                hint: p.hint,
-                image: p.image,
-                address: p.address,
-            },
-        };
+    const postsNestedArray = posts.map(p => {
+        const post = formatPost(p, false);
+        const reposts = json_agg_empty(p.reposts).map(repost => ({
+            ...formatPost(repost, true),
+            repostedBy: repost.user_name,
+        }));
+        return [post].concat(reposts);
     });
+    return [].concat(...postsNestedArray);
 };
 
-export const readPosts = async (_req, res) => {
-    const posts = (await r.getAllPosts()).rows;
+export const readPosts = async (req, res) => {
+    const { timestamp } = req.query;
+    const posts = (await r.getAllPosts(timestamp || -Infinity)).rows;
     const formattedPosts = formatPosts(posts);
+    console.log(formattedPosts)
 
     res.status(200).send(formattedPosts);
 };

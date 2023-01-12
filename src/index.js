@@ -9,7 +9,8 @@ import userRoutes from "./routes/user.routes.js";
 import hashtagRouters from "./routes/hashtag.routes.js";
 import { likesRouter } from "./routes/likes.routes.js";
 import { postsRouter } from "./routes/posts.routes.js";
-import commentsRoutes from "./routes/comments.routes.js"
+import commentsRoutes from "./routes/comments.routes.js";
+import { repostsRouter } from "./routes/repots.routes.js";
 
 //Configs
 app.use(express.json());
@@ -19,7 +20,7 @@ app.use(likesRouter);
 app.use(userRoutes);
 app.use(postsRouter);
 app.use(commentsRoutes);
-
+app.use(repostsRouter);
 
 const port = process.env.PORT;
 
