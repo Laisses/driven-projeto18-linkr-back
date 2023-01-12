@@ -38,7 +38,7 @@ export const getAllPosts = async (after = -Infinity) => {
       LEFT JOIN 
           comments as c ON c.post_id = p.id
       LEFT JOIN
-          users AS user_comment ON user_comment.id = c.user
+          users AS user_comment ON user_comment.id = c.user_id
       WHERE
           p.created_at >= $1
       GROUP BY 
