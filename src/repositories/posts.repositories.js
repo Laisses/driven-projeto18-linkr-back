@@ -1,6 +1,6 @@
 import { connectionDB } from "../database/db.js";
 
-export const getAllPosts = async () => {
+export const getAllPosts = async (after = -Infinity) => {
     return connectionDB.query(`
     SELECT
     u.id as user_id,
@@ -13,12 +13,13 @@ export const getAllPosts = async () => {
     l.hint,
     l.image,
     l.address,
+    p.created_at,
     json_agg(json_strip_nulls(json_build_object('user_id', pl.user_id, 'user_name', user_post_like.name, 'user_photo', user_post_like.photo))) AS "posts_likes"
 FROM
     users as u
 JOIN
     posts as p
-LEFT JOIN 
+LEFT JOIN
     posts_likes as pl ON p.id = pl.post_id
 ON
     u.id = p.user_id
@@ -28,10 +29,12 @@ ON
     p.id = l.post_id
 LEFT JOIN
     users AS user_post_like ON user_post_like.id = pl.user_id
-GROUP BY 
-    p.id, 
-    p.user_id, 
-    p.likes, 
+WHERE
+    p.created_at >= $1
+GROUP BY
+    p.id,
+    p.user_id,
+    p.likes,
     p.description,
     u.id,
     l.title,
@@ -40,7 +43,7 @@ GROUP BY
     l.address
 ORDER BY
     p.created_at DESC;
-`);
+`, [after]);
 };
 
 export const getUser = async token => {
