@@ -10,6 +10,7 @@ const formatPost = (p, isRepost) => ({
     created_at: p.created_at,
     likes: json_agg_empty(p.posts_likes),
     reposts: json_agg_empty(p.reposts),
+    comments: json_agg_empty(p.comments),
     user: {
         id: p.user_id,
         name: p.name,
