@@ -7,6 +7,7 @@ export const formatPosts = posts => {
             allPosts.push({
                 id: p.post_id,
                 description: p.description,
+                created_at: p.created_at,
                 likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
                 reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
                 user: {
@@ -29,6 +30,7 @@ export const formatPosts = posts => {
                     description: p.description,
                     likes: Object.keys(p.posts_likes[0]).length ? p.posts_likes : [],
                     reposts: Object.keys(p.reposts[0]).length ? p.reposts : [],
+                    created_at: p.created_at,
                     user: {
                         id: p.user_id,
                         name: p.name,
@@ -50,8 +52,9 @@ export const formatPosts = posts => {
     return allPosts;
 };
 
-export const readPosts = async (_req, res) => {
-    const posts = (await r.getAllPosts()).rows;
+export const readPosts = async (req, res) => {
+    const { timestamp } = req.query;
+    const posts = (await r.getAllPosts(timestamp || -Infinity)).rows;
     const formattedPosts = formatPosts(posts);
     console.log(formattedPosts)
 
