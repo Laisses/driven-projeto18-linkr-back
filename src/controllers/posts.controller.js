@@ -2,7 +2,9 @@ import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
 const json_agg_empty = arr =>
-    Object.keys(arr[0]).length === 0 ? [] : arr;
+    arr === undefined
+        ? []
+        : Object.keys(arr[0]).length === 0 ? [] : arr;
 
 const formatPost = (p, isRepost) => ({
     id: p.post_id,
@@ -41,7 +43,6 @@ export const readPosts = async (req, res) => {
     const { timestamp } = req.query;
     const posts = (await r.getAllPosts(timestamp || -Infinity)).rows;
     const formattedPosts = formatPosts(posts);
-    console.log(formattedPosts)
 
     res.status(200).send(formattedPosts);
 };
