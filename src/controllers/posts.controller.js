@@ -1,10 +1,11 @@
 import * as r from "../repositories/posts.repositories.js";
 import getMetaData from "metadata-scraper";
 
-const json_agg_empty = arr =>
-    arr === undefined
-        ? []
-        : Object.keys(arr[0]).length === 0 ? [] : arr;
+const json_agg_empty = arr => {
+    return (!arr || arr.length === 0)
+    ? []
+    : Object.keys(arr[0]).length === 0 ? [] : arr;
+}
 
 const formatPost = (p, isRepost) => ({
     id: p.post_id,
@@ -41,8 +42,23 @@ export const formatPosts = posts => {
 
 export const readPosts = async (req, res) => {
     const { timestamp } = req.query;
+
     const posts = (await r.getAllPosts(timestamp || -Infinity)).rows;
-    const formattedPosts = formatPosts(posts);
+
+    const likeRepostComment = posts.map( async (p) => {
+        const likes = await r.likes(p.post_id)
+        const reposts = await r.reposts(p.post_id)
+        const comments = await r.comments(p.post_id)
+
+        return{
+            ...p,
+            ...likes.rows[0],
+            ...reposts.rows[0],
+            ...comments.rows[0]
+        }
+    })
+    
+    const formattedPosts = formatPosts(await Promise.all(likeRepostComment));
 
     res.status(200).send(formattedPosts);
 };
