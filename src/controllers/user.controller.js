@@ -1,4 +1,4 @@
-import { getUsersByName, postSession, getUserByEmail, postUser, getSessionByToken, deleteSessionByToken } from "../repositories/user.repositories.js"
+import { getUsersByName, postSession, getUserByEmail, postUser, getSessionByToken, deleteSessionByToken, followUserById, getFollowingUsersByUserId, unfollowUserById, getUserDataById } from "../repositories/user.repositories.js"
 import { v4 as uuidV4 } from "uuid";
 import bcrypt from "bcrypt";
 export async function signIn(req, res) {
@@ -76,6 +76,7 @@ export async function logout(req, res){
 
 import { getPostsByUserId } from "../repositories/user.repositories.js";
 import { formatPosts } from "./posts.controller.js";
+import { getUser } from "../repositories/posts.repositories.js";
 
 export async function readUserPosts(req, res) {
     const id = req.params.id
@@ -102,3 +103,63 @@ export async function getUsers(req, res) {
     }
 }
 
+export async function getFollowingUsers(req, res) {
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+
+
+    try {
+        const id = (await getUser(token)).rows[0].user_id
+        const followedUsers = (await getFollowingUsersByUserId(id)).rows
+        const followedIds = followedUsers.map((f) => {
+            
+            return f.followed
+        })
+
+        res.send(followedIds)
+
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function followUser(req, res) {
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+    const followedId = req.params.id
+    
+    try {
+        const followerId = (await getUser(token)).rows[0].user_id
+        await followUserById(followerId, followedId)
+        
+        res.sendStatus(200)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function unfollowUser(req, res) {
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+
+    const followedId = req.params.id    
+    try {
+        const followerId = (await getUser(token)).rows[0].user_id
+        await unfollowUserById(followerId, followedId)
+        
+        res.sendStatus(200)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function getUserData(req, res) {
+    const { id } = req.params
+
+    try {
+        const userData = (await getUserDataById(id)).rows[0]
+        res.send(userData)
+    } catch (err) {
+        console.log(err.message)
+    }
+}
