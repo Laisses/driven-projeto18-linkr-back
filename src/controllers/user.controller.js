@@ -1,8 +1,8 @@
-import { getUsersByName, postSession, getUserByEmail, postUser, getSessionByToken, deleteSessionByToken, followUserById, getFollowingUsersByUserId, unfollowUserById, getUserDataById } from "../repositories/user.repositories.js"
+import * as r from "../repositories/user.repositories.js"
 import { v4 as uuidV4 } from "uuid";
 import bcrypt from "bcrypt";
-export async function signIn(req, res) {
 
+export async function signIn(req, res) {
     const { email, password } = req.body;
     const token = uuidV4();
 
@@ -11,7 +11,7 @@ export async function signIn(req, res) {
     }
 
     try {
-        const user = (await getUserByEmail(email)).rows[0];
+        const user = (await r.getUserByEmail(email)).rows[0];
         if (!user) {
             return res.sendStatus(401);
         }
@@ -23,7 +23,7 @@ export async function signIn(req, res) {
 
         const userId = user.id;
 
-        await postSession(token, userId);
+        await r.postSession(token, userId);
 
         res.send({ token, user:{id:user.id, name:user.name, photo:user.photo} });
         
@@ -44,7 +44,7 @@ export async function signUp(req, res) {
     }
 
     try {
-        await postUser(email, hashPassword, username, pictureUrl);
+        await r.postUser(email, hashPassword, username, pictureUrl);
         res.sendStatus(201);
 
     } catch (err) {
@@ -60,13 +60,13 @@ export async function logout(req, res){
     const token = authorization?.replace("Bearer ", "");
 
     try {
-        const openedSession = await getSessionByToken(token);
+        const openedSession = await r.getSessionByToken(token);
 
         if (!openedSession.rows[0]) {
             return res.sendStatus(401);
         };      
 
-        await deleteSessionByToken(token);
+        await r.deleteSessionByToken(token);
         res.sendStatus(204);
 
     } catch (err) {
@@ -74,29 +74,77 @@ export async function logout(req, res){
     };
 }
 
-import { getPostsByUserId } from "../repositories/user.repositories.js";
-import { formatPosts } from "./posts.controller.js";
 import { getUser } from "../repositories/posts.repositories.js";
+
+const json_agg_empty = arr => {
+    return (!arr || arr.length === 0)
+    ? []
+    : Object.keys(arr[0]).length === 0 ? [] : arr;
+}
+
+const formatPost = (p, isRepost) => ({
+    id: p.post_id,
+    description: p.description,
+    created_at: p.created_at,
+    likes: json_agg_empty(p.posts_likes),
+    reposts: json_agg_empty(p.reposts),
+    comments: json_agg_empty(p.comments),
+    user: {
+        id: p.user_id,
+        name: p.name,
+        photo: p.photo,
+    },
+    link: {
+        title: p.title,
+        hint: p.hint,
+        image: p.image,
+        address: p.address,
+    },
+    isRepost,
+});
+
+export const formatPosts = posts => {
+    const postsNestedArray = posts.map(p => {
+        const post = formatPost(p, false);
+        const reposts = json_agg_empty(p.reposts).map(repost => ({
+            ...formatPost(repost, true),
+            repostedBy: repost.user_name,
+        }));
+        return [post].concat(reposts);
+    });
+    return [].concat(...postsNestedArray);
+};
 
 export async function readUserPosts(req, res) {
     const id = req.params.id
-    try {   
-        const posts = (await getPostsByUserId(id)).rows
-        const formattedPosts = formatPosts(posts)
 
-        res.send(formattedPosts)
-    } catch (err) {
-        res.status(500).send(err.message)
-    }
+    const { timestamp } = req.query;
+
+    const posts = (await r.getPostsByUserId(timestamp || -Infinity, id)).rows;
+
+    const likeRepostComment = posts.map( async (p) => {
+        const likes = await r.likes(p.post_id)
+        const reposts = await r.reposts(p.post_id)
+        const comments = await r.comments(p.post_id)
+
+        return{
+            ...p,
+            ...likes.rows[0],
+            ...reposts.rows[0],
+            ...comments.rows[0]
+        }
+    })
     
+    const formattedPosts = r.formatPosts(await Promise.all(likeRepostComment));
 
+    res.status(200).send(formattedPosts);
 }
 
 export async function getUsers(req, res) {
     const name = `${req.params.name}%`
 
     try {
-        const users = await getUsersByName(name);
+        const users = await r.getUsersByName(name);
         res.status(200).send(users.rows);
     } catch (err) {
         res.status(500).send(err.message);
@@ -110,7 +158,7 @@ export async function getFollowingUsers(req, res) {
 
     try {
         const id = (await getUser(token)).rows[0].user_id
-        const followedUsers = (await getFollowingUsersByUserId(id)).rows
+        const followedUsers = (await r.getFollowingUsersByUserId(id)).rows
         const followedIds = followedUsers.map((f) => {
             
             return f.followed
@@ -129,8 +177,8 @@ export async function followUser(req, res) {
     const followedId = req.params.id
     
     try {
-        const followerId = (await getUser(token)).rows[0].user_id
-        await followUserById(followerId, followedId)
+        const followerId = (await r.getUser(token)).rows[0].user_id
+        await r.followUserById(followerId, followedId)
         
         res.sendStatus(200)
     } catch (err) {
@@ -144,8 +192,8 @@ export async function unfollowUser(req, res) {
 
     const followedId = req.params.id    
     try {
-        const followerId = (await getUser(token)).rows[0].user_id
-        await unfollowUserById(followerId, followedId)
+        const followerId = (await r.getUser(token)).rows[0].user_id
+        await r.unfollowUserById(followerId, followedId)
         
         res.sendStatus(200)
     } catch (err) {
@@ -157,7 +205,7 @@ export async function getUserData(req, res) {
     const { id } = req.params
 
     try {
-        const userData = (await getUserDataById(id)).rows[0]
+        const userData = (await r.getUserDataById(id)).rows[0]
         res.send(userData)
     } catch (err) {
         console.log(err.message)
