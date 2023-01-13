@@ -91,3 +91,15 @@ export function getFollowingUsersByUserId(id) {
             follower = $1;
     `,[id])
 }
+
+export function getUserDataById(id) {
+    return connectionDB.query(`
+        SELECT
+            name,
+            photo
+        FROM 
+            users
+        WHERE
+            id = $1;
+    `,[id])
+}

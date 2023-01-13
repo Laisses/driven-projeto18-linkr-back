@@ -1,6 +1,6 @@
 import { connectionDB } from "../database/db.js";
 
-export const getAllPosts = async (after = -Infinity) => {
+export const getAllPosts = async (after = -Infinity) => {   
     return connectionDB.query(`
       SELECT
           u.id as user_id,

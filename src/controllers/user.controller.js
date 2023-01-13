@@ -1,4 +1,4 @@
-import { getUsersByName, postSession, getUserByEmail, postUser, getSessionByToken, deleteSessionByToken, followUserById, getFollowingUsersByUserId, unfollowUserById } from "../repositories/user.repositories.js"
+import { getUsersByName, postSession, getUserByEmail, postUser, getSessionByToken, deleteSessionByToken, followUserById, getFollowingUsersByUserId, unfollowUserById, getUserDataById } from "../repositories/user.repositories.js"
 import { v4 as uuidV4 } from "uuid";
 import bcrypt from "bcrypt";
 export async function signIn(req, res) {
@@ -110,9 +110,13 @@ export async function getFollowingUsers(req, res) {
 
     try {
         const id = (await getUser(token)).rows[0].user_id
-        const a = await getFollowingUsersByUserId(id)
+        const followedUsers = (await getFollowingUsersByUserId(id)).rows
+        const followedIds = followedUsers.map((f) => {
+            
+            return f.followed
+        })
 
-        res.send(a.rows)
+        res.send(followedIds)
 
     } catch (err) {
         res.status(500).send(err.message)
@@ -146,5 +150,16 @@ export async function unfollowUser(req, res) {
         res.sendStatus(200)
     } catch (err) {
         res.status(500).send(err.message)
+    }
+}
+
+export async function getUserData(req, res) {
+    const { id } = req.params
+
+    try {
+        const userData = (await getUserDataById(id)).rows[0]
+        res.send(userData)
+    } catch (err) {
+        console.log(err.message)
     }
 }
